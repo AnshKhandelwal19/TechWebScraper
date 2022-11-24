@@ -1,16 +1,16 @@
 import sys
-from newegg_search import *
+from newegg_search import newegg_search
 from universal_methods import *
+
 #---------------------------------------------------------#
 # Main function
 #---------------------------------------------------------#
 def main():
     search = create_search(sys.argv)
-    print(search)
 
-    data = newegg_search(search)
-    for i in data:
-        print(f'{i[0]} || {i[1]}')
+    
+
+    print_clean(data)
 
 
 #Calls main function

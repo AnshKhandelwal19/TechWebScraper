@@ -14,3 +14,12 @@ def create_search(src):
         print('Search Key Words: ')
         search = input()
     return search
+
+#---------------------------------------------------------#
+# Prints array of data in clean format
+#---------------------------------------------------------#
+def print_clean(data):
+    print('Name                           | Price')
+    print('--------------------------------------------')
+    for i in data:
+        print(f'{i[0][:30]:30} | {i[1]}')
