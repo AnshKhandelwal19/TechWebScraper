@@ -1,18 +1,18 @@
-import requests
-from bs4 import BeautifulSoup
+import sys
+from newegg_search import *
+from universal_methods import *
+#---------------------------------------------------------#
+# Main function
+#---------------------------------------------------------#
+def main():
+    search = create_search(sys.argv)
+    print(search)
 
-search = 'rtx+3070'
+    data = newegg_search(search)
+    for i in data:
+        print(f'{i[0]} || {i[1]}')
 
-params = {
-    'd' : search
-}
 
-response = requests.get("https://www.newegg.com/p/pl", params = params)
-html = response.text
-
-soup = BeautifulSoup(html, 'html.parser')
-
-item_divs = soup.find_all('div', class_ = "item-container")
-
-for i in item_divs:
-    print(i.prettify())
+#Calls main function
+if __name__ == '__main__':
+    main()
