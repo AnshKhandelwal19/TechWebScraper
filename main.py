@@ -1,17 +1,92 @@
-import sys
-from newegg_search import newegg_search
-from universal_methods import *
+import sys, requests
+from bs4 import BeautifulSoup
+
+#---------------------------------------------------------#
+# Takes a newegg url and parses for product name and 
+# price shown on the website
+# Returns an array looking like : [ Product Name , Price]
+#---------------------------------------------------------#
+def newegg_product_data(url):
+    response = requests.get(url)
+    html = response.text
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    product_name = soup.h1.string
+
+    price_div_tag = soup.find('div', class_ = 'product-price')
+    price_tag = price_div_tag.find('strong')
+    if price_tag == None:
+        price = 'None'
+    else:
+        price_tag_dollar = price_div_tag.find('strong').string
+        price_tag_cent = price_div_tag.find('sup').string
+        price = price_tag_dollar+price_tag_cent
+    
+    return [product_name, price]
+
+#---------------------------------------------------------#
+# Takes the search string and sets as parameter for url
+# Gets html response and parses for top 10 searches
+# Calls product data function with item url
+# Returns an array of top 10 searches from product data
+#---------------------------------------------------------#
+def newegg_search(search):
+    data = []
+    params = {
+        'd' : search
+    }
+
+    response = requests.get("https://www.newegg.com/p/pl", params = params)
+    html = response.text
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    item_divs = soup.find_all('div', class_ = "item-container")
+    item_links = []
+
+    for i in item_divs:
+        item_links.append(i.a['href'])
+
+    for i in range(1, 11, 1):
+        inf = newegg_product_data(item_links[i])
+        data.append(inf)
+
+    return data
+
+#---------------------------------------------------------#
+# Takes system arguments and creates search string
+# If arguments are empty, it will ask for user input
+# Returns a string : 'item+key+words'
+#---------------------------------------------------------#
+def create_newegg_search(src):
+    search = ''
+    if len(src) > 1:
+        for i in range(1, len(src)-1, 1):
+            search += src[i]
+            search += '+'
+        search += src[len(src)-1]
+    else:
+        print('Search Key Words: ')
+        search = input()
+    return search
+
+#---------------------------------------------------------#
+# Prints array of data in clean format
+#---------------------------------------------------------#
+def print_clean(data):
+    print('Name                           | Price')
+    print('--------------------------------------------')
+    for i in data:
+        print(f'{i[0][:30]:30} | {i[1]}')
 
 #---------------------------------------------------------#
 # Main function
 #---------------------------------------------------------#
 def main():
-    search = create_search(sys.argv)
-
-    
-
+    search = create_newegg_search(sys.argv)
+    data = newegg_search(search)
     print_clean(data)
-
 
 #Calls main function
 if __name__ == '__main__':
